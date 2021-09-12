@@ -9,9 +9,13 @@ import scala.annotation.StaticAnnotation
 
 type ShowStr = [X] =>> Show[String, X ]
 
-sealed trait Tree[+T] derives Eq
+sealed trait Tree[+T]
 object Tree:
   given [T: [X] =>> Show[String, X]] : Show[String, Tree[T]] = Show.derived
+  given lEq[T: Eq] : Eq[Leaf[T]] = Eq.derived[Leaf[T]]
+  given bEq[T: Eq] : Eq[Branch[T]] = Eq.derived[Branch[T]]
+  given tEq[T : Eq]: Eq[Tree[T]] = Eq.derived[Tree[T]]
+
 
 case class Leaf[+L](value: L) extends Tree[L]
 case class Branch[+B](left: Tree[B], right: Tree[B]) extends Tree[B]
@@ -138,7 +142,10 @@ object PrivateCons {
 //   implicit val show: Show[String, PrivateValueClass] = Show.derived
 // }
 
-case class KArray(value: List[KArray]) derives Eq
+case class KArray(value: List[KArray])
+object KArray {
+  given kEq : Eq[KArray] = Eq.derived[KArray]
+}
 case class Wrapper(v: Option[KArray])
 
 case class VeryLong(
@@ -285,7 +292,7 @@ class Tests extends munit.FunSuite {
     }
 
     test("test equality false") {
-      val res = Eq.derived[Entity].equal(Person("John Smith", 34), Person("", 0))
+      val res = summon[Eq[Person]].equal(Person("John Smith", 34), Person("", 0))
       assert(!res)
     }
 

@@ -2,7 +2,7 @@ package magnolia1.examples
 
 import magnolia1.*
 
-trait Eq[T]:
+trait Eq[-T]:
   def equal(value: T, value2: T): Boolean
 
 object Eq extends AutoDerivation[Eq]:
